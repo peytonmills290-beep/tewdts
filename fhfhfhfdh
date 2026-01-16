@@ -13,10 +13,185 @@ local Tab = Window:MakeTab({
 
 
 Tab:AddDropdown({
-	Name = "teleporttation",
-	Default = "none",
-	Options = {"1","1","1","1","1","1","","","",""},
-	Callback = function(Value)
-		print(Value)
-	end    
+    Name = "Teleportation",
+    Default = "Select Location",
+    Options = {
+        "Deli Market 🥪",
+        "Capital One Bank 🏦",
+        "Ice Box 🧊",
+        "Domino's 🍕",
+        "Hotel 🏨",
+        "Drip Store 👓",
+        "Gun Shop 🔫",
+        "Car Dealer 🚗",
+        "Laundromat 💷",
+        "Studio 🎙",
+        "Basketball Court 🏀",
+        "Robbable Ice Box 🧊",
+        "Exotic Dealer / Grass House 🍃",
+        "Safe 🔒",
+        "Roof Top / Bank Tools 🛠",
+        "Second Gun Shop 🔫",
+        "Construction Job 🔨"
+    },
+    Callback = function(selected)
+        local player = game.Players.LocalPlayer
+        local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart") 
+                    or player.CharacterAdded:Wait():WaitForChild("HumanoidRootPart")
+
+        local teleportCFrames = {
+            ["Deli Market 🥪"] = CFrame.new(-602.3944, 253.7331, -584.2001),
+            ["Capital One Bank 🏦"] = CFrame.new(-205, 284, -1214),
+            ["Ice Box 🧊"] = CFrame.new(-198.8927, 283.8487, -1170.4501),
+            ["Domino's 🍕"] = CFrame.new(-742.5213, 253.229, -946.2093),
+            ["Hotel 🏨"] = CFrame.new(-1012, 266, -933),
+            ["Drip Store 👓"] = CFrame.new(67462.6953, 10489.0322, 546.6762),
+            ["Gun Shop 🔫"] = CFrame.new(92970.4141, 122097.9531, 17023.6230),
+            ["Car Dealer 🚗"] = CFrame.new(-378.6669, 253.2565, -1245.4259),
+            ["Laundromat 💷"] = CFrame.new(-979.4636, 253.6532, -689.3339),
+            ["Studio 🎙"] = CFrame.new(93408.4531, 14484.7158, 570.1394),
+            ["Basketball Court 🏀"] = CFrame.new(-1055.6407, 253.5136, -497.1053),
+            ["Robbable Ice Box 🧊"] = CFrame.new(-209.6836, 283.4959, -1265.5287),
+            ["Exotic Dealer / Grass House 🍃"] = CFrame.new(-1521.9431, 272.5463, -984.3021),
+            ["Safe 🔒"] = CFrame.new(-190, 295, -1010),
+            ["Roof Top / Bank Tools 🛠"] = CFrame.new(-385, 340, -557),
+            ["Second Gun Shop 🔫"] = CFrame.new(66202, 123615.7109, 5749.8169),
+            ["Construction Job 🔨"] = CFrame.new(-1729, 371, -1171)
+        }
+
+        if teleportCFrames[selected] then
+            hrp.CFrame = teleportCFrames[selected]
+            print("Teleported to:", selected)
+        else
+            warn("CFrame not found for:", selected)
+        end
+    end    
 })
+
+
+
+
+local combatTab = Window:MakeTab({
+	Name = "Combat",
+	Icon = "rbxassetid://4483345998",
+	PremiumOnly = false
+})
+
+
+
+
+
+combatTab:AddDropdown({
+    Name = "Combat Modifications",
+    Default = "Select Option",
+    Options = CombatMods,
+    Callback = function(selected)
+        -- Reference your modification table here
+        -- Example structure (you need your game's variables)
+        local Modifications = {
+            InfiniteAmmo = false,
+            InfiniteClips = false,
+            InfiniteDamage = false,
+            ModifyFireRate = false,
+            ModifySpread = false,
+            ModifyRecoil = false,
+            Automatic = false,
+            ModifyReloadSpeed = false,
+            ModifyEquipSpeed = false
+        }
+
+        -- Toggle the selected mod
+        Modifications[selected] = not Modifications[selected]
+        print(selected .. " set to", Modifications[selected])
+
+        -- You can connect these toggles to actual game logic here
+        -- Example (if the game has a remote or stat to fire)
+        -- game:GetService("ReplicatedStorage").Remote.Modifications:FireServer(Modifications)
+    end
+})
+
+
+
+
+
+local auraTab = Window:MakeTab({
+	Name = "Tab 1",
+	Icon = "rbxassetid://4483345998",
+	PremiumOnly = false
+})
+
+
+
+
+
+
+auraTab:AddDropdown({
+    Name = "Player / Combat Mods",
+    Default = "Select Option",
+    Options = {"ESP", "WalkSpeed", "SuperJump", "KillAura"},
+    Callback = function(selected)
+        local player = game.Players.LocalPlayer
+        local character = player.Character or player.CharacterAdded:Wait()
+        local humanoid = character:FindFirstChildOfClass("Humanoid")
+
+        if selected == "ESP" then
+            -- Basic ESP toggle example
+            for _, plr in pairs(game.Players:GetPlayers()) do
+                if plr ~= player then
+                    local box = Instance.new("BoxHandleAdornment")
+                    box.Adornee = plr.Character and plr.Character:FindFirstChild("HumanoidRootPart")
+                    box.Size = Vector3.new(2, 5, 1)
+                    box.Color3 = Color3.fromRGB(0, 255, 0)
+                    box.Transparency = 0.5
+                    box.Parent = workspace
+                end
+            end
+            print("ESP enabled (simple example)")
+
+        elseif selected == "WalkSpeed" then
+            if humanoid then
+                humanoid.WalkSpeed = 40
+                print("WalkSpeed set to 40")
+            end
+
+        elseif selected == "SuperJump" then
+            if humanoid then
+                humanoid.JumpPower = 40
+                print("JumpPower set to 40")
+            end
+
+        elseif selected == "KillAura" then
+            local range = 100
+            local runService = game:GetService("RunService")
+            
+            -- Simple loop to damage nearby players
+            local connection
+            connection = runService.Heartbeat:Connect(function()
+                for _, plr in pairs(game.Players:GetPlayers()) do
+                    if plr ~= player and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
+                        local hrp = plr.Character.HumanoidRootPart
+                        local dist = (hrp.Position - character.HumanoidRootPart.Position).Magnitude
+                        -- Check distance and if holding a gun (example check)
+                        local tool = character:FindFirstChildOfClass("Tool")
+                        if dist <= range and tool and tool:IsA("Tool") then
+                            local hum = plr.Character:FindFirstChildOfClass("Humanoid")
+                            if hum and hum.Health > 0 then
+                                hum.Health = 0
+                            end
+                        end
+                    end
+                end
+            end)
+            print("Kill Aura enabled (range 100, requires gun)")
+        end
+    end
+})
+
+
+
+
+
+
+
+
+OrionLib:Init()
